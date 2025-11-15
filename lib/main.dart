@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:sozluk_app/DetaySayfa.dart';
 import 'package:sozluk_app/Kelimeler.dart';
+import 'package:sozluk_app/KelimelerCevap.dart';
 import 'package:sozluk_app/Kelimelerdao.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -32,10 +35,14 @@ class _AnasayfaState extends State<Anasayfa> {
   bool arama = false;
   String aramaKelimesi = "";
 
-  Future<List<Kelimeler>> tumKelimeler() async{
-    var kelimelerListesi = await Kelimelerdao().tumKelimeler();
+  List<Kelimeler> parseKelimelerCevap(String cevap){
+    return KelimelerCevap.fromJson(json.decode(cevap)).kelimelerListesi;
+  }
 
-    return kelimelerListesi;
+  Future<List<Kelimeler>> tumKelimeler() async{
+    var url = Uri.parse("http://kasimadalan.pe.hu/sozluk/tum_kelimeler.php");
+    var cevap = await http.get(url);
+    return parseKelimelerCevap(cevap.body);
   }
 
   Future<List<Kelimeler>> aramaYap(String aramaKelimesi) async{
